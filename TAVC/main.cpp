@@ -24,8 +24,9 @@ int main(void) {
     Rect2d roi;
 
     // First frame is black
-    capture >> frame;
-    capture >> frame;
+	for (int i = 0; i < 2; i++){ 
+		capture >> frame;
+	}
     //roi = selectROI("tracker", frame);
 
     Classifier classif("cascade.xml");
@@ -52,9 +53,10 @@ int main(void) {
 
         // Main program
         std::vector<Rect> marks = classif.ImageDetection(frame);
+		classif.CheckDetection(marks, frame);
 
         // Draw Marks
-        classif.DrawMarks(marks, frame);
+		classif.DrawMarks(marks, frame);
 
         // Show Image
         cv::imshow("tracker", frame);
