@@ -6,17 +6,18 @@ using namespace cv;
 
 class Tracking
 {
+
 public:
 
     // Attributes
-    Ptr<Tracker> tracker;
+	MultiTracker _trackers;
     Rect2d roi;
 
     // Methods
-    Tracking(String trackerType);
+	Tracking();
     ~Tracking();
 
-    void InitializeTracking(Mat frame, Rect2d roi);
-    void UpdateTracking(Mat frame);
+    void InitializeTracking(Mat frame, Rect roi);
+    int UpdateTracking(Mat frame);
 };
 

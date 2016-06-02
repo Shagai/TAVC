@@ -30,9 +30,14 @@ int main(void) {
     //roi = selectROI("tracker", frame);
 
     Classifier classif("cascade.xml");
-    Tracking track("KCF");
+
+	// set the default tracking algorithm
+	Tracking trackers;
+
     Odometry odom(frame);
     uint h = 0;
+
+	int prevNumMarks = 0;
 
     for (;;) {
 
@@ -49,14 +54,22 @@ int main(void) {
         }*/
 
         // Show Image
-        cv::imshow("Input", frame);
+        //cv::imshow("Input", frame);
 
         // Main program
         std::vector<Rect> marks = classif.ImageDetection(frame);
 		classif.CheckDetection(marks, frame);
 
+		for (std::vector<Rect>::iterator it = marks.begin(); 
+			it != marks.end() && (marks.size() > prevNumMarks); ++it){
+
+				trackers.InitializeTracking(frame, *it);
+		}
+
+		prevNumMarks = trackers.UpdateTracking(frame);
+
         // Draw Marks
-		classif.DrawMarks(marks, frame);
+		//classif.DrawMarks(marks, frame);
 
         // Show Image
         cv::imshow("tracker", frame);

@@ -71,9 +71,21 @@ void Classifier::CheckDetection(std::vector<Rect> &marks, Mat frame){
 		if (areaTotal < 2000) it = marks.erase(it);
 		else ++it;
 	}
+	
+	for (std::vector<Rect>::iterator it1 = marks.begin(); it1 != marks.end();){
 
-	_prevNumMarks = marks.size();
+		for (std::vector<Rect>::iterator it2 = (marks.begin() + 1); it2 != marks.end();){
+
+			if (abs(it1->x - it2->x) < 100) it2 = marks.erase(it2);
+			else ++it2;
+		}
+		
+		if (marks.size() == 1) break;
+		else ++it1;
+	}
 }
+
+
 
 void Classifier::FeatureDetection(std::vector<Rect> marks, Mat frame){
 
