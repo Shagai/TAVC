@@ -16,15 +16,18 @@ class Classifier
 {
 public:
 
-    CascadeClassifier phone1_cascade;
+    CascadeClassifier _cascade;
 
     // Methods
-    Classifier(String fname);
+    Classifier();
     ~Classifier();
+
+	void Classifier::Init(String fname);
 
     std::vector<Rect> Classifier::ImageDetection(Mat frame);
     void Classifier::DrawMarks(std::vector<Rect> mark, Mat frame);
-	void Classifier::CheckDetection(std::vector<Rect> &mark, Mat frame);
+	void Classifier::CheckDetection(std::vector<Rect> &mark, Mat frame, 
+									Scalar minRange, Scalar maxRange);
 	void Classifier::FeatureDetection(std::vector<Rect> marks, Mat frame);
 
 private:

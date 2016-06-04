@@ -1,16 +1,16 @@
 #include "Classifier.h"
 
-Classifier::Classifier(String fname){
+Classifier::Classifier(){
 
-	phone1_cascade.load(fname);
-	_object = imread("logo1.png", IMREAD_GRAYSCALE);
-	_detector = xfeatures2d::SURF::create();
-	_detector->setHessianThreshold(8000);
-	_detector->detectAndCompute(_object, Mat(), _keypoints_object, _descriptors_object);
 }
 
 Classifier::~Classifier(){
 	
+}
+
+
+void Classifier::Init(String fname){
+	_cascade.load(fname);
 }
 
 std::vector<Rect> Classifier::ImageDetection(Mat frame){
@@ -22,7 +22,7 @@ std::vector<Rect> Classifier::ImageDetection(Mat frame){
 	equalizeHist(frame_gray, frame_gray);
 
 	//-- Detect Obeject
-	phone1_cascade.detectMultiScale(frame_gray, marks, 1.1, 2, 0 | CASCADE_SCALE_IMAGE, Size(30, 30));
+	_cascade.detectMultiScale(frame_gray, marks, 1.1, 2, 0 | CASCADE_SCALE_IMAGE, Size(30, 30));
 
 	return marks;
 }
@@ -33,7 +33,7 @@ void Classifier::DrawMarks(std::vector<Rect> marks, Mat frame){
 		cv::rectangle(frame, marks[i], Scalar(255));
 }
 
-void Classifier::CheckDetection(std::vector<Rect> &marks, Mat frame){
+void Classifier::CheckDetection(std::vector<Rect> &marks, Mat frame, Scalar minRange, Scalar maxRange){
 
 	for (std::vector<Rect>::iterator it = marks.begin(); it != marks.end();){
 
@@ -43,7 +43,7 @@ void Classifier::CheckDetection(std::vector<Rect> &marks, Mat frame){
 		int contourPoints = -1;
 
 		cv::cvtColor(frame(*it), imgHSV, CV_BGR2HSV);
-		cv::inRange(imgHSV, Scalar(95, 125, 85), Scalar(115, 255, 255), imgHSV);
+		cv::inRange(imgHSV, minRange, maxRange, imgHSV);
 		//cv::imshow("Tasda", imgHSV);
 
 		if (imgHSV.cols != 0){
