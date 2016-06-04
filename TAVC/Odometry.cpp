@@ -1,7 +1,7 @@
 #include "Odometry.h"
 
 Odometry::Odometry(Mat frame){
-    frame.copyTo(_prevFrame);
+	_prevFrame = frame.clone();
 }
 
 
@@ -19,14 +19,14 @@ void Odometry::Update(Mat currentframe){
 
     // feature detection, tracking
     vector<Point2f> points1, points2;        //vectors to store the coordinates of the feature points
-    if (_state == 0){
+	if (_state == 0 || (_prevFeatures.size() < 5)){
         Odometry::featureDetection(lframe_gray, _prevFeatures);        //detect features in img_1
     }
-    if (_prevFeatures.size() == 0){ return; }
-    vector<uchar> status;
-    Odometry::featureTracking(lframe_gray, cframe_gray, _prevFeatures, points2, status); //track those features to img_2
 
-    if ((_prevFeatures.size() < 5) || (points2.size() < 5)) return;
+    Odometry::featureTracking(lframe_gray, cframe_gray, _prevFeatures, points2); //track those features to img_2
+
+    if ((_prevFeatures.size() < 5) || (points2.size() < 5)) 
+		return;
     //recovering the pose and the essential matrix
     Mat E, R, t, mask;
     //double focal = 718.8560;
@@ -39,7 +39,7 @@ void Odometry::Update(Mat currentframe){
         _R_f = R.clone();
         _t_f = t.clone();
         _state++;
-        currentframe.copyTo(_prevFrame);
+		_prevFrame = currentframe.clone();
         _prevFeatures = points2;
         return;
     }
@@ -52,11 +52,11 @@ void Odometry::Update(Mat currentframe){
             //cout << "Number of tracked features reduced to " << prevFeatures.size() << endl;
             //cout << "trigerring redection" << endl;
             featureDetection(lframe_gray, _prevFeatures);
-            featureTracking(lframe_gray, cframe_gray, _prevFeatures, points2, status);
+            featureTracking(lframe_gray, cframe_gray, _prevFeatures, points2);
 
         }
 
-        currentframe.copyTo(_prevFrame);
+		_prevFrame = currentframe.clone();
         _prevFeatures = points2;
         Odometry::DrawPath();
     }
@@ -78,9 +78,10 @@ void Odometry::DrawPath(){
     imshow("Trajectory", _traj);
 }
 
-void Odometry::featureTracking(Mat img_1, Mat img_2, vector<Point2f>& points1, vector<Point2f>& points2, vector<uchar>& status)	{
+void Odometry::featureTracking(Mat img_1, Mat img_2, vector<Point2f>& points1, vector<Point2f>& points2)	{
 
     //this function automatically gets rid of points for which tracking fails
+	vector<uchar> status;
     vector<float> err;
     Size winSize = Size(21, 21);
     TermCriteria termcrit = TermCriteria(TermCriteria::COUNT + TermCriteria::EPS, 30, 0.01);
@@ -106,12 +107,12 @@ void Odometry::featureTracking(Mat img_1, Mat img_2, vector<Point2f>& points1, v
 
 void Odometry::featureDetection(Mat img_1, vector<Point2f>& points1)	{   //uses FAST as of now, modify parameters as necessary
     vector<KeyPoint> keypoints_1;
-    int fast_threshold = 2;
+    int fast_threshold = 0;
     bool nonmaxSuppression = true;
     FAST(img_1, keypoints_1, fast_threshold, nonmaxSuppression);
     KeyPoint::convert(keypoints_1, points1, vector<int>());
 }
 
 void Odometry::SetFrame(Mat frame){
-    frame.copyTo(_prevFrame);
+	_prevFrame = frame.clone();
 }

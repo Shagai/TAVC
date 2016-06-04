@@ -25,15 +25,16 @@ private:
     Mat _traj = Mat::zeros(600, 600, CV_8UC3);
 
     void featureTracking(Mat img_1, Mat img_2, vector<Point2f>& points1,
-                         vector<Point2f>& points2, vector<uchar>& status);
+                         vector<Point2f>& points2);
     void featureDetection(Mat img_1, vector<Point2f>& points1);
+
+	void DrawPath();
 
 public:
     Odometry(Mat frame);
     ~Odometry();
 
     void Update(Mat frame);
-    void DrawPath();
 
     void Odometry::SetFrame(Mat frame);
 };
