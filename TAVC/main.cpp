@@ -41,7 +41,7 @@ int main(void) {
 
 	Tracking trackers;
 
-	int prevNumMarks = 0;
+	int prevNumTracks = 0;
 
 	// Start and end times
 	time_t start, end;
@@ -50,6 +50,8 @@ int main(void) {
 
     for (;;) {
 
+		
+
 		// Start time
 		high_resolution_clock::time_point t1 = high_resolution_clock::now();
 		
@@ -57,24 +59,26 @@ int main(void) {
         capture >> frame;
         if (frame.empty())
             break;
-		/*
+		
 		high_resolution_clock::time_point t4 = high_resolution_clock::now();
-
-		prevNumMarks = trackers.UpdateTracking(frame);
-
+		int prevNumTracks = trackers.GetNumberOfTrackers();
+		int currNumTracks = trackers.UpdateTracking(frame);
+		if (prevNumTracks > currNumTracks && currNumTracks == 0) trackers.~Tracking();
+		
 		high_resolution_clock::time_point t5 = high_resolution_clock::now();
 		std::cout << "Track Update: " << duration_cast<milliseconds>(t5 - t4).count() << endl;
-		*/
+		
         // Update Odom
         //odom.Update(frame);
 		std::vector<Rect> marks;
 		if (countFrame == 0){
 			high_resolution_clock::time_point t0 = high_resolution_clock::now();
 			marks = logo.ImageDetection(frame);
-			logo.CheckDetection(marks, frame, Scalar(95, 125, 85), Scalar(115, 255, 255));
+			//logo.CheckDetection(marks, frame, Scalar(95, 125, 85), Scalar(115, 255, 255));
 
 			high_resolution_clock::time_point t1 = high_resolution_clock::now();
 			std::cout << "Cascade: " << duration_cast<milliseconds>(t1 - t0).count() << endl;
+			countFrame = -5;
 		}
 
 		
@@ -98,11 +102,11 @@ int main(void) {
 		}
 		
 		tlf.DrawMarks(marks, frame);
-		//for (std::vector<Rect>::iterator it = marks.begin();
-		//	it != marks.end() /*&& (marks.size() > prevNumMarks)*/; ++it){
-		//	//std::cout << "x init: " << it->x << " y init: " << it->y << std::endl;
-		//	trackers.InitializeTracking(frame, *it);
-		//}
+		for (std::vector<Rect>::iterator it = marks.begin();
+			it != marks.end() /*&& (marks.size() > prevNumMarks)*/; ++it){
+			//std::cout << "x init: " << it->x << " y init: " << it->y << std::endl;
+			trackers.InitializeTracking(frame, *it);
+		}
 	
 		//std::cout << "Num trackers: " << prevNumMarks << endl;
 		//std::cout << "FPS: " << 1.0 / duration_cast<milliseconds>(t2 - t1).count() * 1000 << endl;

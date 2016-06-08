@@ -19,5 +19,6 @@ public:
 
     void InitializeTracking(Mat frame, Rect roi);
     int UpdateTracking(Mat frame);
+	int GetNumberOfTrackers();
 };
 

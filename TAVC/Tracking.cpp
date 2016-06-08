@@ -14,7 +14,7 @@ Tracking::~Tracking(){
 void Tracking::InitializeTracking(Mat frame, Rect roi){
 
 	std::cout << "Número de Trackers: " << _trackers.objects.size() << std::endl;
-	if (_trackers.objects.size() == 0) _trackers.add("MIL", frame, roi);
+	if (_trackers.objects.size() == 0) _trackers.add("KCF", frame, roi);
 	else {
 		int count = 0;
 		for (std::vector<Rect2d>::iterator it = _trackers.objects.begin();
@@ -25,7 +25,7 @@ void Tracking::InitializeTracking(Mat frame, Rect roi){
 		if (count < _trackers.objects.size()) {
 			if (roi.x > 0 && (roi.x + roi.width) < 1280 && roi.y > 0 &&
 				(roi.y + roi.height) < 720){
-				_trackers.add("MIL", frame, roi);
+				_trackers.add("KCF", frame, roi);
 			}
 		}
 	}
@@ -33,8 +33,14 @@ void Tracking::InitializeTracking(Mat frame, Rect roi){
 
 int Tracking::UpdateTracking(Mat frame){
 
+	for (std::vector<Rect2d>::iterator it = _trackers.objects.begin();
+		it != _trackers.objects.end(); ++it){
+
+		std::cout << "x: " << it->x << " y: " << it->y << std::endl;
+		std::cout << "width: " << it->width << " height: " << it->height << std::endl;
+	}
+
     // update the tracking result
-	
 	if (_trackers.objects.size() > 0) {
 		//std::chrono::high_resolution_clock::time_point t4 = std::chrono::high_resolution_clock::now();
 		_trackers.update(frame);
@@ -42,7 +48,7 @@ int Tracking::UpdateTracking(Mat frame){
 		//if (std::chrono::duration_cast<std::chrono::milliseconds>(t5 - t4).count() > 100) _trackers.objects.erase(_trackers.objects.begin());
 	}
    
-	//std::cout << "Número de Trackers: " << _trackers.objects.size() << std::endl;
+	std::cout << "Número de Trackers: " << _trackers.objects.size() << std::endl;
 
 	for (std::vector<Rect2d>::iterator it = _trackers.objects.begin();
 		it != _trackers.objects.end();){
@@ -54,7 +60,12 @@ int Tracking::UpdateTracking(Mat frame){
 			++it;
 		}
 		else it = _trackers.objects.erase(it);
+		if (_trackers.objects.size() == 0) _trackers.objects.empty();
 	}
 
+	return _trackers.objects.size();
+}
+
+int Tracking::GetNumberOfTrackers(){
 	return _trackers.objects.size();
 }

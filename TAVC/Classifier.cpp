@@ -195,8 +195,8 @@ Rect Classifier::FeatureDetection(Mat frame){
 
 	//std::cout << "width: " << mark.width << " height: " << mark.height << std::endl;
 
-	if (mark.width < 30 || mark.height < 30 ||
-		mark.width > 1.8 * mark.height || mark.height > 1.8 * mark.width) return rect;
+	if (/*mark.width < 30 || mark.height < 30 ||*/
+		mark.width > 6 * mark.height || mark.height > 6 * mark.width) return rect;
 	if (mark.x * 2 < 0 || mark.y * 2 < 0 || 
 		mark.x * 2 + mark.width * 2 > 1280 ||
 		mark.y * 2 + mark.height * 2 > 720) return rect;
