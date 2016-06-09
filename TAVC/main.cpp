@@ -40,21 +40,19 @@ int main(void) {
 
 	Classifier logo("cascade_logo.xml");
 	Classifier tlf("tlf1.jpg", 1000);
-	Classifier tlf2("tlf2.jpg", 500);
 
 	Tracking trackers;
 
 	int prevNumTracks = 0;
-
-	// Start and end times
-	time_t start, end;
-
-	int countFrame = 0;
+	//int countFrame = 0;
 
     for (;;) {
 
-		countFrame++;
-		if (countFrame % 2 == 0) continue;
+		// Update Odom
+		odom.Update(frame);
+
+		//countFrame++;
+		//if (countFrame % 2 == 0) continue;
 		// Start time
 		high_resolution_clock::time_point t1 = high_resolution_clock::now();
 		
@@ -72,8 +70,6 @@ int main(void) {
 		high_resolution_clock::time_point t5 = high_resolution_clock::now();
 		std::cout << "Track Update: " << duration_cast<milliseconds>(t5 - t4).count() << endl;
 		
-        // Update Odom
-        //odom.Update(frame);
 		std::vector<Rect> marks;
 		if (countFrame == 1){
 			high_resolution_clock::time_point t0 = high_resolution_clock::now();
@@ -105,9 +101,9 @@ int main(void) {
 			std::cout << "SURF: " << duration_cast<milliseconds>(t3 - t2).count() << endl;
 		}
 		
-		tlf.DrawMarks(marks, frame);
+		//tlf.DrawMarks(marks, frame);
 		for (std::vector<Rect>::iterator it = marks.begin();
-			it != marks.end() /*&& (marks.size() > prevNumMarks)*/; ++it){
+			it != marks.end(); ++it){
 			//std::cout << "x init: " << it->x << " y init: " << it->y << std::endl;
 			trackers.InitializeTracking(frame, *it);
 		}
