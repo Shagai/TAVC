@@ -18,11 +18,17 @@ void Tracking::InitializeTracking(Mat frame, Rect roi){
 	else {
 		int count = 0;
 		for (std::vector<Rect2d>::iterator it = _trackers.objects.begin();
-			it != _trackers.objects.end() && abs(roi.x - it->x) < 400; ++it){
-			count++;
+			it != _trackers.objects.end(); ++it){
+			Point a(roi.x, roi.y);
+			Point b(it->x, it->y);
+			double dist = cv::norm(a - b);
+			std::cout << "Distance: " << dist << std::endl;
+			if (cv::norm(a - b) < 400){
+				count++;
+			}
 		}
 
-		if (count < _trackers.objects.size()) {
+		if (count == 0) {
 			if (roi.x > 0 && (roi.x + roi.width) < 1280 && roi.y > 0 &&
 				(roi.y + roi.height) < 720){
 				_trackers.add("KCF", frame, roi);
@@ -33,15 +39,9 @@ void Tracking::InitializeTracking(Mat frame, Rect roi){
 
 int Tracking::UpdateTracking(Mat frame){
 
-	for (std::vector<Rect2d>::iterator it = _trackers.objects.begin();
-		it != _trackers.objects.end(); ++it){
-
-		std::cout << "x: " << it->x << " y: " << it->y << std::endl;
-		std::cout << "width: " << it->width << " height: " << it->height << std::endl;
-	}
-
+	_count++;
     // update the tracking result
-	if (_trackers.objects.size() > 0) {
+	if (_trackers.objects.size() > 0 && (_count % 3 == 0)) {
 		//std::chrono::high_resolution_clock::time_point t4 = std::chrono::high_resolution_clock::now();
 		_trackers.update(frame);
 		//std::chrono::high_resolution_clock::time_point t5 = std::chrono::high_resolution_clock::now();
@@ -53,9 +53,10 @@ int Tracking::UpdateTracking(Mat frame){
 	for (std::vector<Rect2d>::iterator it = _trackers.objects.begin();
 		it != _trackers.objects.end();){
 			
-		std::cout << "x: " << it->x << " y: " << it->y << std::endl;
-		std::cout << "width: " << it->width << " height: " << it->height << std::endl;
-		if (it->x > 0 && (it->x) < 1280 && it->y > 0 && (it->y) < 720){
+		//std::cout << "x: " << it->x << " y: " << it->y << std::endl;
+		//std::cout << "width: " << it->width << " height: " << it->height << std::endl;
+		if (it->x > 0 && (it->x + it->width / 2) < 1280 && 
+			it->y > 0 && (it->y + it->height /2) < 720){
 			cv::rectangle(frame, *it, Scalar(0, 255, 0), 2, 1);
 			++it;
 		}

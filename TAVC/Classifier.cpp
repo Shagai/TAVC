@@ -74,7 +74,7 @@ void Classifier::CheckDetection(std::vector<Rect> &marks, Mat frame, Scalar minR
 			//std::cout << "Numero Puntos: " << contourPoints << std::endl;
 		}
 
-		if (areaTotal < 2000) it = marks.erase(it);
+		if (areaTotal / it->area() < 0.1) it = marks.erase(it);
 		else ++it;
 	}
 	
@@ -120,7 +120,7 @@ bool Classifier::CheckDetection(Rect mark, Mat frame, Scalar minRange, Scalar ma
 		}
 
 		std::cout << "Area Total: " << areaTotal << std::endl;
-		if (areaTotal < 300) return false;
+		if (areaTotal/mark.area() < 0.3) return false;
 		else return true;
 	}
 }

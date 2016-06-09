@@ -21,7 +21,9 @@ using namespace std::chrono;
 int main(void) {
 
     // Set Device
-    cv::VideoCapture capture("desarrollo.mp4");
+    cv::VideoCapture capture("FINAL.mp4");
+	//namedWindow("tracker", WINDOW_AUTOSIZE);
+	double fps = capture.get(CV_CAP_PROP_FPS);
 
     // Create main Mats
     cv::Mat frame, frame_dst;
@@ -38,6 +40,7 @@ int main(void) {
 
 	Classifier logo("cascade_logo.xml");
 	Classifier tlf("tlf1.jpg", 1000);
+	Classifier tlf2("tlf2.jpg", 500);
 
 	Tracking trackers;
 
@@ -50,20 +53,21 @@ int main(void) {
 
     for (;;) {
 
-		
-
+		countFrame++;
+		if (countFrame % 2 == 0) continue;
 		// Start time
 		high_resolution_clock::time_point t1 = high_resolution_clock::now();
 		
         // Get current frame from VideoCapture
         capture >> frame;
+		resize(frame, frame, Size(1280, 720));
         if (frame.empty())
             break;
 		
 		high_resolution_clock::time_point t4 = high_resolution_clock::now();
 		int prevNumTracks = trackers.GetNumberOfTrackers();
 		int currNumTracks = trackers.UpdateTracking(frame);
-		if (prevNumTracks > currNumTracks && currNumTracks == 0) trackers.~Tracking();
+		if (prevNumTracks > currNumTracks /*&& currNumTracks == 0*/) trackers.~Tracking();
 		
 		high_resolution_clock::time_point t5 = high_resolution_clock::now();
 		std::cout << "Track Update: " << duration_cast<milliseconds>(t5 - t4).count() << endl;
@@ -71,14 +75,14 @@ int main(void) {
         // Update Odom
         //odom.Update(frame);
 		std::vector<Rect> marks;
-		if (countFrame == 0){
+		if (countFrame == 1){
 			high_resolution_clock::time_point t0 = high_resolution_clock::now();
 			marks = logo.ImageDetection(frame);
-			//logo.CheckDetection(marks, frame, Scalar(95, 125, 85), Scalar(115, 255, 255));
+			logo.CheckDetection(marks, frame, Scalar(95, 125, 125), Scalar(115, 160, 255));
 
 			high_resolution_clock::time_point t1 = high_resolution_clock::now();
 			std::cout << "Cascade: " << duration_cast<milliseconds>(t1 - t0).count() << endl;
-			countFrame = -5;
+			//countFrame = -5;
 		}
 
 		
@@ -91,7 +95,7 @@ int main(void) {
 			if (mark.height > 0 && mark.width > 0){
 				//std::cout << "width: " << mark.width << " height: " << mark.height << std::endl;
 				//std::cout << "x: " << mark.x << " y: " << mark.y << std::endl;
-				if (tlf.CheckDetection(mark, frame, Scalar(0, 60, 60), Scalar(130, 130, 130))){
+				if (tlf.CheckDetection(mark, frame, Scalar(15, 30, 60), Scalar(130, 130, 190))){
 					marks.push_back(mark);
 				}
 			}
@@ -114,7 +118,7 @@ int main(void) {
         // Show Image
         cv::imshow("tracker", frame);
 
-		countFrame++;
+		
         // Avoid Gray Screen
         int c = cv::waitKey(10);
         if ((char)c == 27) { break; } // escape

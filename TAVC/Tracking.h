@@ -17,6 +17,8 @@ public:
 	Tracking();
     ~Tracking();
 
+	int _count = 0;
+
     void InitializeTracking(Mat frame, Rect roi);
     int UpdateTracking(Mat frame);
 	int GetNumberOfTrackers();
